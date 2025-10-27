@@ -1,0 +1,19 @@
+// psicotech-frontend/tsconfig.json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["dom", "ES2015"],
+
+    // SOLUÇÃO 1: Resolve o erro de default-import (CRÍTICO)
+    "esModuleInterop": true, 
+
+    // SOLUÇÃO 2: Recomenda-se usar 'Node' ou 'bundler' para a resolução de módulos com Vite
+    "moduleResolution": "Node", // ou "bundler" se Node der erro
+
+    // SOLUÇÃO 3: Garante que as importações do vite (import.meta.env) funcionem
+    "module": "ES2020", // Ou ESNext
+    "target": "ES2020"  // Ou ESNext
+
+    // ... outras configurações existentes ...
+  }
+}
