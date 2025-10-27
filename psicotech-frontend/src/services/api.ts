@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // A URL base do seu Backend (Node.js/Express)
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api/v1', 
+  baseURL: '/api/v1',
 });
 
 // Adiciona um interceptor para anexar o JWT a TODAS as requisições
