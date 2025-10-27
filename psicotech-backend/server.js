@@ -7,7 +7,7 @@ const express = require('express');
 const cors = require('cors'); // Importa o cors
 const app = express();
 // Ajusta a importação para verificar o conteúdo do authController
-const { register, login } = require('./src/controllers/authController');
+const { register, login, googleAuth, forgotPassword } = require('./src/controllers/authController');
 const { protect } = require('./src/middleware/auth'); // NOVO
 const userController = require('./src/controllers/userController'); // NOVO
 
@@ -31,6 +31,12 @@ app.post('/api/v1/register', register);
 
 // Mapeia a rota de Login (será implementada na próxima etapa)
 app.post('/api/v1/login', login); 
+
+// Rota de Google OAuth
+app.post('/api/v1/auth/google', googleAuth);
+
+// Rota de Forgot Password
+app.post('/api/v1/forgot-password', forgotPassword);
 
 // Rota de PERFIL PROTEGIDA (O Frontend pedirá dados aqui)
 app.get('/api/v1/profile', protect, userController.getProfile); // NOVO!

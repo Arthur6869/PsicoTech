@@ -1,10 +1,43 @@
+// psicotech-frontend/src/pages/Login.tsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // <-- CRÍTICO: Adicionar useNavigate
 import api from '../services/api';
+import { useGoogleLogin } from '@react-oauth/google'; // Importe o hook useGoogleLogin para o login com Google
 
 const Login = () => {
+  const navigate = useNavigate(); // <-- NOVO: Inicializar o hook
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const login = useGoogleLogin({
+    flow: 'auth-code',
+    onSuccess: async (codeResponse) => {
+      try {
+        // Envia o code para o backend que fará o exchange
+        const response = await api.post('/auth/google', {
+          code: codeResponse.code,
+        });
+
+        const { token, user } = response.data;
+
+        // Salva as credenciais
+        localStorage.setItem('psicotech_token', token);
+        localStorage.setItem('psicotech_user', JSON.stringify(user));
+
+        alert(`Bem-vindo, ${user.email}!`);
+        navigate('/feed');
+      } catch (error: any) {
+        alert(`Erro na autenticação Google: ${error.response?.data?.error || 'Erro desconhecido.'}`);
+      }
+    },
+    onError: (error) => {
+      console.error('Erro no login Google:', error);
+    },
+  });
+
+  const handleGoogleLogin = () => {
+    login();
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -16,39 +49,88 @@ const Login = () => {
 
       const { token, user } = response.data;
 
+      // 1. Salva as credenciais (CORRETO)
       localStorage.setItem('psicotech_token', token);
       localStorage.setItem('psicotech_user', JSON.stringify(user));
 
       alert(`Bem-vindo, ${user.email}!`);
-      // Redirecionar para a página principal (Feed)
+      
+      // 2. AÇÃO CRÍTICA: Redireciona para a rota protegida
+      navigate('/feed'); // <-- Navega para a rota principal
+
     } catch (error: any) {
       alert(`Erro no Login: ${error.response?.data?.error || 'Credenciais inválidas.'}`);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-80">
-        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient p-4">
+      {/* O Cartão Centralizado de Fundo Branco */}
+      <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm">
+        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm"></form>
+        {/* LOGO (Substitua por sua imagem/componente real) */}
+        <div className="flex justify-center mb-6">
+          <div className="text-white bg-lightPurple rounded-full p-4">
+            {/* Ícone ou nome da logo aqui */}
+            <span className="font-bold text-lg text-darkNavy">PsiConnect</span>
+          </div>
+        </div>
+
+        <h2 className="text-2xl font-semibold mb-6 text-center">Welcome to PsiConnect</h2>
+        <p className="text-sm text-gray-500 mb-6 text-center">Sign in to continue</p>
+
+        {/* 1. CONTINUAR COM O GOOGLE (será implementado na Fase 2) */}
+        <button 
+          type="button"
+          className="w-full flex items-center justify-center border border-gray-300 text-gray-700 py-2 rounded-lg mb-4 hover:bg-gray-50 transition"
+          onClick={handleGoogleLogin}
+        >
+          {/* Ícone do Google */}
+          <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">...</svg>
+          Continue with Google
+        </button>
+
+        <div className="text-center text-sm text-gray-500 my-4">OR</div>
+
+        {/* Formulário de Email/Senha */}
+        <form onSubmit={handleSubmit}>
+          {/* Campo Email */}
+         <label htmlFor="email-input" className="block text-sm font-medium text-gray-700 mb-1 mt-4">
+          Email
+        </label>
         <input
+          id="email-input" // Adicione ID para acessibilidade
           type="email"
-          placeholder="Email"
+          placeholder="you@example.com"
           value={email}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-          className="border p-2 w-full mb-4"
+          className="border border-gray-300 p-3 w-full rounded-lg mb-4 focus:ring-darkNavy focus:border-darkNavy"
         />
+          {/* Campo Senha */}
+          <label htmlFor="password-input" className="block text-sm font-medium text-gray-700 mb-1">
+          Password
+        </label>
         <input
+          id="password-input" // Adicione ID para acessibilidade
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-          className="border p-2 w-full mb-4"
+          className="border border-gray-300 p-3 w-full rounded-lg mb-6 focus:ring-darkNavy focus:border-darkNavy"
         />
-        <button type="submit" className="bg-lightPurple text-white p-2 w-full rounded mb-4">Login</button>
-        <Link to="/register" className="text-lightPurple text-center block">Não tem uma conta? Registre-se</Link>
-      </form>
+          {/* Botão Principal */}
+          <button type="submit" className="bg-darkNavy text-white p-3 w-full rounded-xl hover:bg-gray-800 transition">
+            Sign in
+          </button>
+        </form>
+
+        {/* Links inferiores */}
+        <div className="mt-6 text-center text-sm flex justify-between">
+          <Link to="/forgot-password" className="text-darkNavy hover:underline">Forgot password?</Link>
+          <Link to="/register" className="text-darkNavy hover:underline">Need an account? Sign up</Link>
+        </div>
+      </div> 
     </div>
   );
-};
-
+};  
 export default Login;

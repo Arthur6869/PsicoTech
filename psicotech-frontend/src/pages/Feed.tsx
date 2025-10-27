@@ -2,7 +2,7 @@
 import React from 'react';
 import ProfileMenu from '../components/ProfileMenu';
 
-const Feed = () => {
+const Feed = () =>  {
   // 1. O Layout básico com a barra lateral à direita
   return (
     <div className="flex h-screen">
