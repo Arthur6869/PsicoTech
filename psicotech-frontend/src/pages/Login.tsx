@@ -1,5 +1,5 @@
 // psicotech-frontend/src/pages/Login.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // <-- CRÍTICO: Adicionar useNavigate
 import api from '../services/api';
 import { useGoogleLogin } from '@react-oauth/google'; // Importe o hook useGoogleLogin para o login com Google
@@ -8,6 +8,14 @@ const Login = () => {
   const navigate = useNavigate(); // <-- NOVO: Inicializar o hook
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // Se já estiver autenticado, redireciona para o feed
+  useEffect(() => {
+    const token = localStorage.getItem('psicotech_token');
+    if (token) {
+      navigate('/fy', { replace: true });
+    }
+  }, [navigate]);
 
   const login = useGoogleLogin({
     flow: 'auth-code',
@@ -25,9 +33,10 @@ const Login = () => {
         localStorage.setItem('psicotech_user', JSON.stringify(user));
 
         alert(`Bem-vindo, ${user.email}!`);
-        navigate('/feed');
+        navigate('/fy', { replace: true });
       } catch (error: any) {
-        alert(`Erro na autenticação Google: ${error.response?.data?.error || 'Erro desconhecido.'}`);
+        const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Erro desconhecido na autenticação Google.';
+        alert(`Erro na autenticação Google: ${errorMessage}`);
       }
     },
     onError: (error) => {
@@ -56,10 +65,11 @@ const Login = () => {
       alert(`Bem-vindo, ${user.email}!`);
       
       // 2. AÇÃO CRÍTICA: Redireciona para a rota protegida
-      navigate('/feed'); // <-- Navega para a rota principal
+      navigate('/fy', { replace: true }); // <-- Navega para a rota principal
 
     } catch (error: any) {
-      alert(`Erro no Login: ${error.response?.data?.error || 'Credenciais inválidas.'}`);
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Credenciais inválidas.';
+      alert(`Erro no Login: ${errorMessage}`);
     }
   };
 

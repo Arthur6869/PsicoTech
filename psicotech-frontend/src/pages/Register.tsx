@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // <-- NOVO: Importe useNavigate
 import api from '../services/api';
 
@@ -8,6 +8,14 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [perfilTipo, setPerfilTipo] = useState('Estudante');
+
+  // Se já estiver autenticado, redireciona para o feed
+  useEffect(() => {
+    const token = localStorage.getItem('psicotech_token');
+    if (token) {
+      navigate('/fy', { replace: true });
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,12 +30,12 @@ const Register = () => {
       localStorage.setItem('psicotech_token', token);
       localStorage.setItem('psicotech_user', JSON.stringify(user));
 
-      alert('Registro realizado com sucesso! Faça o login.');
-      navigate('/feed');
-      // Redirecionar para a página de Login
+      alert('Registro realizado com sucesso!');
+      navigate('/fy', { replace: true });
     } catch (error: any) {
       console.error('Erro no registro:', error);
-      alert(`Erro no registro: ${JSON.stringify(error.response?.data || error.message || 'Erro desconhecido.')}`);
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'Erro desconhecido ao criar conta.';
+      alert(`Erro no registro: ${errorMessage}`);
     }
   };
 

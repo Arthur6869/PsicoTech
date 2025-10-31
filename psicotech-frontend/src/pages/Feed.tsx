@@ -1,25 +1,19 @@
 // psicotech-frontend/src/pages/Feed.tsx
 import React from 'react';
-import ProfileMenu from '../components/ProfileMenu';
+import PostComposer from '../components/PostComposer';
 
 const Feed = () =>  {
-  // 1. O Layout básico com a barra lateral à direita
   return (
-    <div className="flex h-screen">
-      
-      {/* BARRA LATERAL (DIREITA, conforme a documentação) */}
-      <aside className="w-64 bg-lightPurple p-4 border-l">
-        <ProfileMenu /> 
-      </aside>
-
-      {/* CONTEÚDO PRINCIPAL (FEED) */}
-      <main className="flex-1 bg-white p-6">
-        <h1 className="text-3xl font-bold">Feed Inicial</h1>
-        <p>Aqui será o conteúdo do feed, inspirado no X/Twitter.</p>
-        
-        {/* Opções Clicáveis Superiores (Fy, Seguindo, PsylA, etc.) */}
-      </main>
-
+    <div className="max-w-3xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Feed Inicial</h1>
+      <PostComposer onPublish={(text) => {
+        // Por enquanto, apenas simula publicação local
+        alert('Publicação enviada: ' + text);
+      }} />
+      <div className="space-y-4">
+        <div className="p-4 rounded-lg border bg-white">Post de exemplo no feed.</div>
+        <div className="p-4 rounded-lg border bg-white">Outro post de exemplo.</div>
+      </div>
     </div>
   );
 };
