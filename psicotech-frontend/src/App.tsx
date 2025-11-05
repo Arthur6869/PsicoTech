@@ -8,6 +8,7 @@ import Following from './pages/Following';
 import Members from './pages/Members';
 import Courses from './pages/Courses';
 import PsyIA from './pages/PsyIA';
+import Initial from './pages/Initial';
 import MainLayout from './components/MainLayout';
 
 // Componente para proteger as rotas
@@ -19,20 +20,29 @@ const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) =>
   
   // Se não estiver autenticado, redireciona para /login
   if (!token || token.trim() === '') {
-    // Limpa qualquer token inválido
     localStorage.removeItem('psicotech_token');
     localStorage.removeItem('psicotech_user');
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
   
-  // Se estiver autenticado, renderiza o elemento
   return element;
+};
+
+// Componente para a rota raiz que verifica autenticação
+const RootRoute: React.FC = () => {
+  const token = localStorage.getItem('psicotech_token');
+  
+  // Se autenticado, redireciona para o feed
+  if (token && token.trim() !== '') {
+    return <Navigate to="/fy" replace />;
+  }
+  
+  // Se não autenticado, mostra a página inicial
+  return <Initial />;
 };
 
 // Componente wrapper para garantir verificação na inicialização
 const AppRoutes: React.FC = () => {
-  const location = useLocation();
-
   useEffect(() => {
     // Limpa tokens vazios ou inválidos
     const token = localStorage.getItem('psicotech_token');
@@ -42,33 +52,27 @@ const AppRoutes: React.FC = () => {
     }
   }, []);
 
-  // Se tentar acessar rota protegida sem token, redireciona
-  const isPublicRoute = ['/login', '/register', '/forgot-password'].includes(location.pathname);
-  const token = localStorage.getItem('psicotech_token');
-  
-  if (!isPublicRoute && (!token || token.trim() === '')) {
-    return <Navigate to="/login" replace />;
-  }
-
   return (
     <Routes>
-      {/* Rotas públicas */}
+      {/* Rota raiz - mostra Initial se não autenticado, redireciona para /fy se autenticado */}
+      <Route path="/" element={<RootRoute />} />
+
+      {/* Rotas públicas de autenticação */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       
       {/* Rotas protegidas - requerem autenticação */}
-      <Route path="/" element={<PrivateRoute element={<MainLayout />} />}>
-        <Route index element={<Navigate to="/fy" replace />} />
-        <Route path="fy" element={<Feed />} />
-        <Route path="following" element={<Following />} />
-        <Route path="members" element={<Members />} />
-        <Route path="courses" element={<Courses />} />
-        <Route path="psyia" element={<PsyIA />} />
+      <Route element={<PrivateRoute element={<MainLayout />} />}>
+        <Route path="/fy" element={<Feed />} />
+        <Route path="/following" element={<Following />} />
+        <Route path="/members" element={<Members />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/psyia" element={<PsyIA />} />
       </Route>
       
-      {/* Qualquer rota desconhecida redireciona para login */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      {/* Qualquer rota desconhecida */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

@@ -2,7 +2,7 @@
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "lib": ["dom", "ES2015"],
+    "lib": ["dom", "ES2016"],
 
     // SOLUÇÃO 1: Resolve o erro de default-import (CRÍTICO)
     "esModuleInterop": true, 
