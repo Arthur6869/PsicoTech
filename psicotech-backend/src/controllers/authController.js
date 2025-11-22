@@ -60,14 +60,43 @@ exports.register = async (req, res) => {
             message: "Usuário registrado com sucesso! Logado automaticamente.", 
             token, // <-- ADICIONA O TOKEN AQUI
             user: { 
-                id: newUser.id, 
+                id: newUser.id,
+                username: newUser.username,
                 email: newUser.email,
                 perfilTipo: newUser.perfilTipo 
             }
         });
 
     } catch (error) {
-       // ... (Tratamento de erro - permanece o mesmo)
+        console.error("Erro no registro:", error);
+        
+        // Erro: tabela não existe (P2021)
+        if (error.code === 'P2021') {
+            return res.status(500).json({ 
+                error: "Banco de dados não configurado. Execute as migrações do Prisma: npx prisma migrate deploy" 
+            });
+        }
+        
+        // Verifica se é um erro de constraint única (email ou username duplicado)
+        if (error.code === 'P2002') {
+            const field = error.meta?.target?.[0] || 'campo';
+            const fieldName = field === 'email' ? 'email' : field === 'username' ? 'username' : 'campo';
+            return res.status(400).json({ 
+                error: `Este ${fieldName} já está em uso. Por favor, escolha outro.` 
+            });
+        }
+        
+        // Outros erros do banco de dados
+        if (error.code && error.code.startsWith('P')) {
+            return res.status(400).json({ 
+                error: "Erro ao processar a solicitação. Verifique os dados fornecidos." 
+            });
+        }
+        
+        // Erro genérico
+        return res.status(500).json({ 
+            error: "Erro interno do servidor ao criar conta. Tente novamente mais tarde." 
+        });
     }
 };
 
