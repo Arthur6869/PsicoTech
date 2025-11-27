@@ -4,7 +4,7 @@ psicotech-backend/.env
 # Pastas e arquivos gerados (NÃO DEVEM SER VERSIONADOS)
 node_modules/
 .venv
-
+docs/
 # Logs e caches
 npm-debug.log
 yarn-error.log
