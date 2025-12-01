@@ -46,7 +46,7 @@ Docker (ou PostgreSQL instalado localmente)
     # Database (Ajuste conforme seu setup Docker/local)
     DATABASE_URL="postgresql://[USER]:[PASSWORD]@[HOST]:[PORT]/[DB_NAME]"
     DB_NAME="psico_db"
-
+http://localhost:5173/
     # JWT Secret (Use uma string longa e aleatória)
     JWT_SECRET="sua_chave_secreta_aqui"
 
@@ -94,6 +94,10 @@ O servidor estará rodando em http://localhost:3000
 Projeto PsicoTech - Fase 1
 PROJETO: PSICOTECH (PsiConnect)
 Versão: 1.0 (Fase 1 - Módulo de Autenticação) Data: 29 de Outubro de 2025 
+
+
+
+
 
         1. INTRODUÇÃO E ESCOPO DA FASE 1
     Este documento detalha as entregas técnicas da Fase 1 do projeto PsiConnect (PsicoTech), cujo foco principal foi o estabelecimento da Arquitetura de Desenvolvimento e a implementação completa do Módulo de Autenticação e Segurança. O projeto visa criar uma plataforma social e educacional para a comunidade de psicologia.

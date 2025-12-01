@@ -56,10 +56,7 @@ const ProfileMenu = () => {
                     <div className="text-xs text-gray-500">Seguidores</div>
                     <div className="text-lg font-semibold">0</div>
                 </div>
-                <div className="p-3 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 border">
-                    <div className="text-xs text-gray-500">Curtidas</div>
-                    <div className="text-lg font-semibold">0</div>
-                </div>
+               
             </div>
 
             <ul className="space-y-2 text-sm">

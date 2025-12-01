@@ -29,6 +29,7 @@ const Register = () => {
       const { token, user } = response.data; 
       localStorage.setItem('psicotech_token', token);
       localStorage.setItem('psicotech_user', JSON.stringify(user));
+      // Todo: alterar  alerta para sweetalert
 
       alert('Registro realizado com sucesso!');
       navigate('/fy', { replace: true });
