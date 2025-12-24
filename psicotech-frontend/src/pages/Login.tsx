@@ -3,144 +3,190 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // <-- CRÍTICO: Adicionar useNavigate
 import api from '../services/api';
 import { useGoogleLogin } from '@react-oauth/google'; // Importe o hook useGoogleLogin para o login com Google
+import { sweertalert } from 'sweetalert';
 
 const Login = () => {
-  const navigate = useNavigate(); // <-- NOVO: Inicializar o hook
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+	const navigate = useNavigate(); // <-- NOVO: Inicializar o hook
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
 
-  // Se já estiver autenticado, redireciona para o feed
-  useEffect(() => {
-    const token = localStorage.getItem('psicotech_token');
-    if (token) {
-      navigate('/fy', { replace: true });
-    }
-  }, [navigate]);
+	// Se já estiver autenticado, redireciona para o feed
+	useEffect(() => {
+		const token = localStorage.getItem('psicotech_token');
+		if (token) {
+			navigate('/fy', { replace: true });
+		}
+	}, [navigate]);
 
-  const login = useGoogleLogin({
-    flow: 'auth-code',
-    onSuccess: async (codeResponse) => {
-      try {
-        // Envia o code para o backend que fará o exchange
-        const response = await api.post('/auth/google', {
-          code: codeResponse.code,
-        });
+	const login = useGoogleLogin({
+		flow: 'auth-code',
+		onSuccess: async (codeResponse) => {
+			try {
+				// Envia o code para o backend que fará o exchange
+				const response = await api.post('/auth/google', {
+					code: codeResponse.code,
+				});
 
-        const { token, user } = response.data;
+				const { token, user } = response.data;
 
-        // Salva as credenciais
-        localStorage.setItem('psicotech_token', token);
-        localStorage.setItem('psicotech_user', JSON.stringify(user));
+				// Salva as credenciais
+				localStorage.setItem('psicotech_token', token);
+				localStorage.setItem('psicotech_user', JSON.stringify(user));
 
-        alert(`Bem-vindo, ${user.email}!`);
-        navigate('/fy', { replace: true });
-      } catch (error: any) {
-        const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Erro desconhecido na autenticação Google.';
-        alert(`Erro na autenticação Google: ${errorMessage}`);
-      }
-    },
-    onError: (error) => {
-      console.error('Erro no login Google:', error);
-    },
-  });
+				Swal.fire({
+					title: 'Sucesso',
+					text: 'Funciona com TypeScript',
+					icon: 'success',
+				});
+				navigate('/fy', { replace: true });
+			} catch (error: any) {
+				const errorMessage =
+					error.response?.data?.error ||
+					error.response?.data?.message ||
+					'Erro desconhecido na autenticação Google.';
+				Swal.fire({
+					title: 'Erro',
+					text: `Erro na autenticação Google: ${errorMessage}`,
+					icon: 'error',
+				});
+			}
+		},
+		onError: (error) => {
+			console.error('Erro no login Google:', error); // Mensagem de erro mais detalhada
+		},
+	});
 
-  const handleGoogleLogin = () => {
-    login();
-  };
+	const handleGoogleLogin = () => {
+		login();
+	};
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
-      const response = await api.post('/login', {
-        email,
-        password,
-      });
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		try {
+			const response = await api.post('/login', {
+				email,
+				password,
+			});
 
-      const { token, user } = response.data;
+			const { token, user } = response.data;
 
-      // 1. Salva as credenciais (CORRETO)
-      localStorage.setItem('psicotech_token', token);
-      localStorage.setItem('psicotech_user', JSON.stringify(user));
+			// 1. Salva as credenciais (CORRETO)
+			localStorage.setItem('psicotech_token', token);
+			localStorage.setItem('psicotech_user', JSON.stringify(user));
 
-      alert(`Bem-vindo, ${user.email}!`);
-      
-      // 2. AÇÃO CRÍTICA: Redireciona para a rota protegida
-      navigate('/fy', { replace: true }); // <-- Navega para a rota principal
+			Swal.fire({
+				title: 'Sucesso',
+				text: `Bem-vindo, ${user.email}!`,
+				icon: 'success',
+			});
 
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Credenciais inválidas.';
-      alert(`Erro no Login: ${errorMessage}`);
-    }
-  };
+			// 2. AÇÃO CRÍTICA: Redireciona para a rota protegida
+			navigate('/fy', { replace: true }); // <-- Navega para a rota principal
+		} catch (error: any) {
+			const errorMessage =
+				error.response?.data?.error ||
+				error.response?.data?.message ||
+				'Credenciais inválidas.';
+			alert(`Erro no Login: ${errorMessage}`); // Mensagem de erro mais detalhada
+		}
+	};
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient p-4">
-      {/* O Cartão Centralizado de Fundo Branco */}
-      <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm">
-        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm"></form>
-        {/* LOGO (Substitua por sua imagem/componente real) */}
-        <div className="flex justify-center mb-6">
-          <div className="text-white bg-lightPurple rounded-full p-4">
-            {/* Ícone ou nome da logo aqui */}
-            <span className="font-bold text-lg text-darkNavy">PsiConnect</span>
-          </div>
-        </div>
+	return (
+		<div className="min-h-screen flex items-center justify-center bg-gradient p-4">
+			{/* O Cartão Centralizado de Fundo Branco */}
+			<div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm">
+				<form
+					onSubmit={handleSubmit}
+					className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm"></form>
+				{/* LOGO (Substitua por sua imagem/componente real) */}
+				<div className="flex justify-center mb-6">
+					<div className="text-white bg-lightPurple rounded-full p-4">
+						{/* Ícone ou nome da logo aqui */}
+						<span className="font-bold text-lg text-darkNavy">PsiConnect</span>
+					</div>
+				</div>
 
-        <h2 className="text-2xl font-semibold mb-6 text-center">Welcome to PsiConnect</h2>
-        <p className="text-sm text-gray-500 mb-6 text-center">Sign in to continue</p>
+				<h2 className="text-2xl font-semibold mb-6 text-center">
+					Welcome to PsiConnect
+				</h2>
+				<p className="text-sm text-gray-500 mb-6 text-center">
+					Sign in to continue
+				</p>
 
-        {/* 1. CONTINUAR COM O GOOGLE (será implementado na Fase 2) */}
-        <button 
-          type="button"
-          className="w-full flex items-center justify-center border border-gray-300 text-gray-700 py-2 rounded-lg mb-4 hover:bg-gray-50 transition"
-          onClick={handleGoogleLogin}
-        >
-          {/* Ícone do Google */}
-          <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">...</svg>
-          Continue with Google
-        </button>
+				{/* 1. CONTINUAR COM O GOOGLE (será implementado na Fase 2) */}
+				<button
+					type="button"
+					className="w-full flex items-center justify-center border border-gray-300 text-gray-700 py-2 rounded-lg mb-4 hover:bg-gray-50 transition"
+					onClick={handleGoogleLogin}>
+					{/* Ícone do Google */}
+					<svg
+						className="w-5 h-5 mr-2"
+						fill="currentColor"
+						viewBox="0 0 24 24">
+						...
+					</svg>
+					Continue with Google
+				</button>
 
-        <div className="text-center text-sm text-gray-500 my-4">OR</div>
+				<div className="text-center text-sm text-gray-500 my-4">OR</div>
 
-        {/* Formulário de Email/Senha */}
-        <form onSubmit={handleSubmit}>
-          {/* Campo Email */}
-         <label htmlFor="email-input" className="block text-sm font-medium text-gray-700 mb-1 mt-4">
-          Email
-        </label>
-        <input
-          id="email-input" // Adicione ID para acessibilidade
-          type="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-          className="border border-gray-300 p-3 w-full rounded-lg mb-4 focus:ring-darkNavy focus:border-darkNavy"
-        />
-          {/* Campo Senha */}
-          <label htmlFor="password-input" className="block text-sm font-medium text-gray-700 mb-1">
-          Password
-        </label>
-        <input
-          id="password-input" // Adicione ID para acessibilidade
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-          className="border border-gray-300 p-3 w-full rounded-lg mb-6 focus:ring-darkNavy focus:border-darkNavy"
-        />
-          {/* Botão Principal */}
-          <button type="submit" className="bg-darkNavy text-white p-3 w-full rounded-xl hover:bg-gray-800 transition">
-            Sign in
-          </button>
-        </form>
+				{/* Formulário de Email/Senha */}
+				<form onSubmit={handleSubmit}>
+					{/* Campo Email */}
+					<label
+						htmlFor="email-input"
+						className="block text-sm font-medium text-gray-700 mb-1 mt-4">
+						Email
+					</label>
+					<input
+						id="email-input" // Adicione ID para acessibilidade
+						type="email"
+						placeholder="you@example.com"
+						value={email}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+							setEmail(e.target.value)
+						}
+						className="border border-gray-300 p-3 w-full rounded-lg mb-4 focus:ring-darkNavy focus:border-darkNavy"
+					/>
+					{/* Campo Senha */}
+					<label
+						htmlFor="password-input"
+						className="block text-sm font-medium text-gray-700 mb-1">
+						Password
+					</label>
+					<input
+						id="password-input" // Adicione ID para acessibilidade
+						type="password"
+						placeholder="Password"
+						value={password}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+							setPassword(e.target.value)
+						}
+						className="border border-gray-300 p-3 w-full rounded-lg mb-6 focus:ring-darkNavy focus:border-darkNavy"
+					/>
+					{/* Botão Principal */}
+					<button
+						type="submit"
+						className="bg-darkNavy text-white p-3 w-full rounded-xl hover:bg-gray-800 transition">
+						Sign in
+					</button>
+				</form>
 
-        {/* Links inferiores */}
-        <div className="mt-6 text-center text-sm flex justify-between">
-          <Link to="/forgot-password" className="text-darkNavy hover:underline">Forgot password?</Link>
-          <Link to="/register" className="text-darkNavy hover:underline">Need an account? Sign up</Link>
-        </div>
-      </div> 
-    </div>
-  );
+				{/* Links inferiores */}
+				<div className="mt-6 text-center text-sm flex justify-between">
+					<Link
+						to="/forgot-password"
+						className="text-darkNavy hover:underline">
+						Forgot password?
+					</Link>
+					<Link
+						to="/register"
+						className="text-darkNavy hover:underline">
+						Need an account? Sign up
+					</Link>
+				</div>
+			</div>
+		</div>
+	);
 };  
 export default Login;
