@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // <-- CRÍTICO: Adicionar useNavigate
 import api from '../services/api';
 import { useGoogleLogin } from '@react-oauth/google'; // Importe o hook useGoogleLogin para o login com Google
-
+// Todo: implementar o alrt sweetalert
 const Login = () => {
   const navigate = useNavigate(); // <-- NOVO: Inicializar o hook
   const [email, setEmail] = useState('');
