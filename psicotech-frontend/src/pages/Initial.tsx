@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -7,8 +7,75 @@ import { PsyIADemo } from './PsyIADemo';
 import Menu_initial from '../components/Menu_initial';
 import Clients from '../components/clients';
 import testeGif from '../assets/teste.gif';
+
+// Hook personalizado para detectar quando elemento entra na tela
+const useInView = (ref: React.RefObject<HTMLDivElement>, options = {}) => {
+	const [isInView, setIsInView] = useState(false);
+
+	useEffect(() => {
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) {
+					setIsInView(true);
+				}
+			},
+			{ threshold: 0.1, ...options },
+		);
+
+		if (ref.current) {
+			observer.observe(ref.current);
+		}
+
+		return () => {
+			if (ref.current) {
+				observer.unobserve(ref.current);
+			}
+		};
+	}, [ref, options]);
+
+	return isInView;
+};
 const Initial: React.FC = () => {
 	const location = useLocation();
+	const sectionRef1 = React.useRef<HTMLDivElement>(null);
+	const sectionRef2 = React.useRef<HTMLDivElement>(null);
+	const sectionRef3 = React.useRef<HTMLDivElement>(null);
+	const sectionRef4 = React.useRef<HTMLDivElement>(null);
+	const sectionRef5 = React.useRef<HTMLDivElement>(null);
+
+	const isInView1 = useInView(sectionRef1);
+	const isInView2 = useInView(sectionRef2);
+	const isInView3 = useInView(sectionRef3);
+	const isInView4 = useInView(sectionRef4);
+	const isInView5 = useInView(sectionRef5);
+
+	// Variantes de animação reutilizáveis
+	const fadeInUp = {
+		initial: { opacity: 0, y: 40 },
+		animate: { opacity: 1, y: 0 },
+		transition: { duration: 0.8, ease: 'easeOut' },
+	};
+
+	const fadeInScale = {
+		initial: { opacity: 0, scale: 0.9 },
+		animate: { opacity: 1, scale: 1 },
+		transition: { duration: 0.8, ease: 'easeOut' },
+	};
+
+	const staggerContainer = {
+		animate: {
+			transition: {
+				staggerChildren: 0.1,
+				delayChildren: 0.3,
+			},
+		},
+	};
+
+	const staggerItem = {
+		initial: { opacity: 0, y: 20 },
+		animate: { opacity: 1, y: 0 },
+		transition: { duration: 0.5 },
+	};
 	// Novas Cores: indigo-700 (Roxo Escuro), pink-500 (Rosa Destaque), Gradiente (Roxo/Rosa Claro)
 	//inns de  faculdades que utilizam a psico tech ( incerto )
 
@@ -126,10 +193,12 @@ const Initial: React.FC = () => {
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.6, delay: 0.5 }}
-							className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+							className="flex flex-col sm:flex-row gap-4 justify-center items-center ">
 							<a
 								href="#demo"
-								className="group inline-flex items-center gap-2 px-8 py-4 text-base sm:text-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform">
+								className="group inline-flex items-center gap-2 px-8 py-4 text-base sm:text-lg font-semibold
+								rounded-lg 
+								bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 text-white shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 transition-all group">
 								Experimente a simulação
 								<svg
 									className="w-5 h-5 group-hover:translate-x-1 transition-transform"
@@ -175,49 +244,81 @@ const Initial: React.FC = () => {
 				</section>
 				{/* 3. SEÇÃO NOVA: DEMO INTERATIVA */}
 				{/* TODO:  REFAZER ISSO  */}
-				<section
-					id="demo"
-					className="py-16 md:py-24 bg-gray-100">
-					<div className="container mx-auto px-4">
-						<h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-indigo-700">
-							Experimente o PsyIA: Demonstração
-						</h2>
-						<PsyIADemo />
-					</div>
-				</section>
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6, delay: 0.5 }}>
+					<section
+						id="demo"
+						className="py-16 md:py-24 bg-gray-100 -mt-8">
+						<div className="container mx-auto px-4  ">
+							<h3 className=" font-semibold  text-x1 text-center mb-8 text-indigo-700">
+								Demonstração Interativa
+							</h3>
+							<h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-black">
+								Experimente o
+								<h2 className="  bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent relative bottom-1 font-bold">
+									{' '}
+									PsyIA{' '}
+								</h2>
+							</h2>
+							<PsyIADemo />
+						</div>
+					</section>
+				</motion.div>
 				{/* 4. Como Funciona (O Ecossistema) */}
-				<section
+				<motion.section
+					ref={sectionRef3}
 					id="como-funciona"
-					className="py-16 md:py-24 bg-white">
+					className="py-16 md:py-24 bg-white"
+					initial="initial"
+					animate={isInView3 ? 'animate' : 'initial'}
+					variants={fadeInUp}>
 					<div className="container mx-auto px-4">
-						<h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-indigo-700">
+						<motion.h2
+							className="text-3xl md:text-4xl font-bold text-center mb-12 text-indigo-700"
+							variants={fadeInUp}>
 							O Ciclo da Confiança: Pratique no PsyIA, Evolua na Comunidade
-						</h2>
-						<div className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6">
+						</motion.h2>
+						<motion.div
+							className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6"
+							variants={staggerContainer}
+							initial="initial"
+							animate={isInView3 ? 'animate' : 'initial'}>
 							{ecosystemSteps.map((step, index) => (
-								<div
+								<motion.div
 									key={index}
-									className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300">
+									className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer"
+									variants={staggerItem}
+									whileHover={{ y: -10, transition: { duration: 0.2 } }}>
 									<h3 className="text-xl font-semibold mb-2 text-indigo-700">
 										{step.title}
 									</h3>
 									<p className="text-gray-600">{step.description}</p>
-								</div>
+								</motion.div>
 							))}
-						</div>
+						</motion.div>
 					</div>
-				</section>
+				</motion.section>
 				{/* 5. O Problema (Validação) */}
-				<section
+				<motion.section
+					ref={sectionRef4}
 					id="problema"
-					className="py-16 md:py-24 bg-gray-100">
+					className="py-16 md:py-24 bg-gray-100"
+					initial="initial"
+					animate={isInView4 ? 'animate' : 'initial'}
+					variants={fadeInUp}>
 					{' '}
 					{/* Cor de fundo alternada */}
 					<div className="container mx-auto px-4 text-center">
-						<h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-indigo-700">
+						<motion.h2
+							className="text-3xl md:text-4xl font-bold text-center mb-8 text-indigo-700"
+							variants={fadeInUp}>
 							Nós entendemos a sua insegurança
-						</h2>
-						<blockquote className="bg-white p-8 rounded-lg shadow-inner max-w-4xl mx-auto">
+						</motion.h2>
+						<motion.blockquote
+							className="bg-white p-8 rounded-lg shadow-inner max-w-4xl mx-auto"
+							variants={fadeInScale}>
 							<p className="italic text-gray-700 mb-4 text-2xl font-medium">
 								"Entre 43% e 54% de estudantes e recém-formados relataram
 								ansiedade, sofrimento mental ou insegurança ligada às práticas
@@ -226,29 +327,45 @@ const Initial: React.FC = () => {
 							<p className="font-semibold text-right text-indigo-700">
 								- Fonte: Pitch Psico.tech
 							</p>
-						</blockquote>
-						<p className="mt-8 text-xl text-gray-800">
+						</motion.blockquote>
+						<motion.p
+							className="mt-8 text-xl text-gray-800"
+							variants={fadeInUp}>
 							A Psico.tech foi criada para resolver exatamente isso.
-						</p>
+						</motion.p>
 					</div>
-				</section>
+				</motion.section>
 				{/* 6. Nossa Equipe - ATUALIZADA */}
-				<section
+				<motion.section
+					ref={sectionRef5}
 					id="time"
-					className="py-16 md:py-24 bg-white">
+					className="py-16 md:py-24 bg-white"
+					initial="initial"
+					animate={isInView5 ? 'animate' : 'initial'}
+					variants={fadeInUp}>
 					<div className="container mx-auto px-4">
-						<h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-indigo-700">
+						<motion.h2
+							className="text-3xl md:text-4xl font-bold text-center mb-12 text-indigo-700"
+							variants={fadeInUp}>
 							Nosso Time
-						</h2>
-						<div className="flex flex-col md:flex-row justify-center space-y-8 md:space-y-0 md:space-x-12">
+						</motion.h2>
+						<motion.div
+							className="flex flex-col md:flex-row justify-center space-y-8 md:space-y-0 md:space-x-12"
+							variants={staggerContainer}
+							initial="initial"
+							animate={isInView5 ? 'animate' : 'initial'}>
 							{team.map((member, index) => (
-								<div
+								<motion.div
 									key={index}
-									className="text-center max-w-xs">
+									className="text-center max-w-xs"
+									variants={staggerItem}
+									whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}>
 									{/* Placeholder para Foto */}
-									<div className="w-32 h-32 mx-auto rounded-full bg-pink-400 flex items-center justify-center mb-4">
+									<motion.div
+										className="w-32 h-32 mx-auto rounded-full bg-pink-400 flex items-center justify-center mb-4"
+										whileHover={{ scale: 1.1, rotate: 5 }}>
 										<span className="text-white text-xl">{member.name[0]}</span>
-									</div>
+									</motion.div>
 									<h3 className="text-xl font-semibold text-indigo-700">
 										{member.name}
 									</h3>
@@ -258,11 +375,11 @@ const Initial: React.FC = () => {
 											{member.details}
 										</p>
 									)}
-								</div>
+								</motion.div>
 							))}
-						</div>
+						</motion.div>
 					</div>
-				</section>
+				</motion.section>
 				{/* 7. Contato / Footer - TEXTO ATUALIZADO */}
 				<footer
 					id="agende"
